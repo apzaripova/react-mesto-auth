@@ -2,7 +2,7 @@ import React from 'react';
 import success from '../images/success.svg';
 import failed from '../images/failed.svg';
 
-export default function InfoTooltip({ isOpen, onClose, isRegSuccess}) {
+export default function InfoTooltip({ isOpen, onClose, isSuccess}) {
     return (
         <>
       <div className={isOpen ? 'popup popup_active' : 'popup'}>
@@ -12,16 +12,12 @@ export default function InfoTooltip({ isOpen, onClose, isRegSuccess}) {
                   onClick={onClose}
           />
           <img className="popup__image-status"
-               src={`${isRegSuccess === "success" ? success : failed}`}
-               alt={`${
-                isRegSuccess === "success"
-                  ? "Успешная регистрация"
-                  : "Что-то пошло не так"
-              }`}
+               src={`${isSuccess ? success : failed}`}
+               alt="Изображение статуса регистрации"
           />
           <h2 className="popup__profile popup__profile_status">
           {`${
-          isRegSuccess === "success"
+          isSuccess
             ? "Вы успешно зарегистрировались!"
             : "Что-то пошло не так! Попробуйте еще раз."
         }`}

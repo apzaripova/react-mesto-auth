@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import Header from './Header'
 import Footer from './Footer'
 import Main from './Main'
 import PopupWithForm from'./PopupWithForm'
@@ -9,7 +10,7 @@ import { CurrentUserContext } from '../contexts/CurrentUserContext.js';
 import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
-import { Route, Switch, useHistory } from 'react-router-dom';
+import { Route, Switch, useHistory, Redirect } from 'react-router-dom';
 import Login from './Login';
 import Register from './Register';
 import ProtectedRoute from './ProtectedRoute';
@@ -146,7 +147,7 @@ function App() {
   function handleRegistration(email, password) {
     auth.register(email, password)
     .then((res) => {
-      if (res.data.email) {
+      if (res.data) {
         setIsSuccesSignUp(true)
         handleInfoTooltipPopupOpen();
         history.push('/sign-in')
@@ -165,6 +166,7 @@ function App() {
     .then((res) => {
       if (res.token) {
         setLoggedIn(true)
+        setIsSuccesSignUp(true)
         localStorage.getItem('jwt', res.token)
         history.push('/')
       }
@@ -198,14 +200,8 @@ function App() {
   return (
     <CurrentUserContext.Provider value={currentUser}>
         <div className="page">
+        <Header email={email} loggedIn={loggedIn} onSignOut={handleSignOut} />
         <Switch>
-          <Route path="/sign-up">
-            <Register handleRegistration={handleRegistration} />
-          </Route>
-          <Route path="/sign-in">
-            <Login handleAuthorization={handleAuthorization}
-                  onCheckToken={handleCheckToken} />
-          </Route>
           <ProtectedRoute
                 exact path="/" 
                 component={Main}
@@ -217,7 +213,18 @@ function App() {
                 onCardLike={handleLikeCard}
                 onCardDelete={handleDeleteClick}
                 loggedIn={loggedIn}
+                logout={handleSignOut}
                 />
+          <Route path="/sign-up">
+            <Register handleRegistration={handleRegistration} />
+          </Route>
+          <Route path="/sign-in">
+            <Login handleAuthorization={handleAuthorization}
+                  onCheckToken={handleCheckToken} />
+          </Route>
+          <Route path="/">
+            {loggedIn ? <Redirect to="/" /> : <Redirect to="/sign-in" />}
+          </Route>
         </Switch>
         <Footer />
         <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
