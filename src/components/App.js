@@ -1,14 +1,20 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Header from './Header'
 import Footer from './Footer'
 import Main from './Main'
 import PopupWithForm from'./PopupWithForm'
 import api from '../utils/api'
+import * as auth from '../utils/auth';
 import ImagePopup from './ImagePopup'
 import { CurrentUserContext } from '../contexts/CurrentUserContext.js';
 import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
+import { Route, Switch, useHistory } from 'react-router-dom';
+import Login from './Login';
+import Register from './Register';
+import ProtectedRoute from './ProtectedRoute';
+import InfoTooltip from './InfoTooltip';
 
 function App() {
     const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
@@ -21,6 +27,11 @@ function App() {
         link: '',
         name: ''
       });
+    const [loggedIn, setLoggedIn] = React.useState(false);
+    const [email, setEmail] = useState('');
+    const [isSuccessSignUp, setIsSuccesSignUp] = React.useState(false);
+    const [isInfoTooltipOpen, setIsInfoTooltipOpen] = React.useState(false);
+    const history = useHistory();
 
     React.useEffect(() => {
         Promise.all([api.getUserInfo(), api.getCards()])
@@ -32,6 +43,29 @@ function App() {
             console.log(err);
           })
         }, []);
+
+    const handleCheckToken = React.useCallback(() => {
+      const token = localStorage.getItem('jwt')
+
+        auth
+        .checkToken(token)
+        .then((data) => {
+            setLoggedIn(true)
+            setEmail(data.data.email)
+            history.push('/')
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    }, [history]);
+
+    React.useEffect(() => {
+      const token = localStorage.getItem('jwt');
+  
+      if (token) {
+        handleCheckToken();
+      }
+    }, [handleCheckToken])
 
 
     const handleEditProfileClick = () => {
@@ -49,16 +83,9 @@ function App() {
       setIsImagePopupOpen(!isImagePopupOpen);
     }
 
-    const closeAllPopups = () => {
-        setIsEditProfilePopupOpen(false);
-        setIsEditAvatarPopupOpen(false);
-        setIsAddPlacePopupOpen(false);
-        setIsImagePopupOpen(false);
-        setSelectedCard({
-            link: '',
-            name: ''
-          })
-    };
+    function handleInfoTooltipPopupOpen() {
+      setIsInfoTooltipOpen(!isInfoTooltipOpen);
+    }
 
     function handleLikeCard(card) {
       // Снова проверяем, есть ли уже лайк на этой карточке
@@ -114,18 +141,90 @@ function App() {
       console.log(`Ошибка создания карточки: ${err}`);
     })
   }
+  
 
+  //регистрация
+  function handleRegistration(email, password) {
+    auth.register(email, password)
+    .then((res) => { 
+      if (res.data._id) {
+        setIsSuccesSignUp(true)
+        handleInfoTooltipPopupOpen();
+        history.push('/sign-in')
+      }
+    })
+    .catch((err) => {
+      console.log(err)
+      setIsSuccesSignUp(false);
+      handleInfoTooltipPopupOpen();
+    });
+  }
+
+  //авторизация
+  function handleAuthorization({ password, email }) {
+    auth.authorize({ password, email })
+    .then((data) => {
+      if (data.token) {
+        setLoggedIn(true)
+        localStorage.getItem('jwt', data.token)
+        history.push('/')
+      }
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+  }
+
+  //выход из учетной записи
+  function handleSignOut() {
+    localStorage.removeItem('jwt');
+    setEmail('');
+    setLoggedIn(false);
+    history.push('/sign-in');
+  }
+
+  const closeAllPopups = () => {
+    setIsEditProfilePopupOpen(false);
+    setIsEditAvatarPopupOpen(false);
+    setIsAddPlacePopupOpen(false);
+    setIsImagePopupOpen(false);
+    setIsInfoTooltipOpen(false);
+    setSelectedCard({
+        link: '',
+        name: ''
+      })
+  };
+  
+  
   return (
     <CurrentUserContext.Provider value={currentUser}>
         <div className="page">
-        <Header />
-        <Main onEditProfile={handleEditProfileClick} 
-              onAddPlace={handleAddPlaceClick} 
-              onEditAvatar={handleEditAvatarClick} 
-              onCardClick={handleCardClick} 
-              cards={cards}
-              onCardLike={handleLikeCard}
-              onCardDelete={handleDeleteClick}/>
+        <Header
+          loggedIn={loggedIn}
+          handleSignOut={handleSignOut}
+          email={email}
+        />
+        <Switch>
+          <Route path="/sign-up">
+            <Register handleRegistration={handleRegistration} />
+          </Route>
+          <Route path="/sign-in">
+            <Login handleAuthorization={handleAuthorization}
+                  onCheckToken={handleCheckToken} />
+          </Route>
+          <ProtectedRoute
+                exact path="/" 
+                component={Main}
+                onEditProfile={handleEditProfileClick} 
+                onAddPlace={handleAddPlaceClick} 
+                onEditAvatar={handleEditAvatarClick} 
+                onCardClick={handleCardClick} 
+                cards={cards}
+                onCardLike={handleLikeCard}
+                onCardDelete={handleDeleteClick}
+                loggedIn={loggedIn}
+                />
+        </Switch>
         <Footer />
         <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
         <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlace}/>
@@ -136,6 +235,11 @@ function App() {
           onClose={closeAllPopups}
           isOpen={isImagePopupOpen}
         />
+        <InfoTooltip
+          isOpen={isInfoTooltipOpen}
+          onClose={closeAllPopups}
+          isSuccess={isSuccessSignUp}
+      />
     </div>
     </CurrentUserContext.Provider>
   );
