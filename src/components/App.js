@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import Header from './Header'
 import Footer from './Footer'
 import Main from './Main'
 import PopupWithForm from'./PopupWithForm'
@@ -146,8 +145,8 @@ function App() {
   //регистрация
   function handleRegistration(email, password) {
     auth.register(email, password)
-    .then((res) => { 
-      if (res.data._id) {
+    .then((res) => {
+      if (res.data.email) {
         setIsSuccesSignUp(true)
         handleInfoTooltipPopupOpen();
         history.push('/sign-in')
@@ -161,12 +160,12 @@ function App() {
   }
 
   //авторизация
-  function handleAuthorization({ password, email }) {
-    auth.authorize({ password, email })
-    .then((data) => {
-      if (data.token) {
+  function handleAuthorization(email, password) {
+    auth.authorize(email, password)
+    .then((res) => {
+      if (res.token) {
         setLoggedIn(true)
-        localStorage.getItem('jwt', data.token)
+        localStorage.getItem('jwt', res.token)
         history.push('/')
       }
     })
@@ -199,11 +198,6 @@ function App() {
   return (
     <CurrentUserContext.Provider value={currentUser}>
         <div className="page">
-        <Header
-          loggedIn={loggedIn}
-          handleSignOut={handleSignOut}
-          email={email}
-        />
         <Switch>
           <Route path="/sign-up">
             <Register handleRegistration={handleRegistration} />

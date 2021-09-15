@@ -1,14 +1,11 @@
 .header__link {
-    color: white;
-    cursor: pointer;
-    margin: 0;
-    align-self: flex-end;
-    padding: 0 0 0 24px;
+    font-size: 18px;
+    line-height: 22px;
+    text-align: right;
     color: #FFFFFF;
     text-decoration: none;
-    line-height: 1.2;
-    font-size: 18px;
-    font-weight: 400;
+    transition: opacity 0.2s ease-in;
+    cursor: pointer;
 }
 
 .header__link:hover {

@@ -27,8 +27,8 @@ export default function Register(props) {
         <div className="popup__auth">
             <form className="popup-form popup-form_auth" onSubmit={handleSubmit}>
                 <h2 className="popup__profile popup__profile_auth">Регистрация</h2>
-                <input className="popup__input popup__input_type_login" onChange={handleAddEmail} type="email" placeholder="Email" id="auth-email" required maxLength="40" minLength="1"></input>
-                <input className="popup__input popup__input_type_login" onChange={handleAddPassword} type="password" placeholder="Пароль" id="auth-password" required maxLength="40" minLength="2"></input>
+                <input className="popup__input popup__input_type_login" onChange={handleAddEmail} value={email} type="email" placeholder="Email" id="auth-email" required maxLength="40" minLength="1"></input>
+                <input className="popup__input popup__input_type_login" onChange={handleAddPassword} value={password} type="password" placeholder="Пароль" id="auth-password" required maxLength="40" minLength="2"></input>
                 <button className="popup__button popup__button_auth">Зарегистрироваться</button>
                 <p className="popup__login-text">Уже зарегистрированы?
                 <Route path="/sign-up">
