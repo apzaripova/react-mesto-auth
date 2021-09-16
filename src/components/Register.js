@@ -22,8 +22,6 @@ export default function Register(props) {
 
 
     return (
-        <>
-        <Header headerText={'Войти'} link="/sign-in" />
         <div className="popup__auth">
             <form className="popup-form popup-form_auth" onSubmit={handleSubmit}>
                 <h2 className="popup__profile popup__profile_auth">Регистрация</h2>
@@ -39,6 +37,5 @@ export default function Register(props) {
                 </p>
             </form>
         </div>
-        </>
     )
 }

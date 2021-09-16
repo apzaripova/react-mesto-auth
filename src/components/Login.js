@@ -19,8 +19,6 @@ export default function Login(props) {
         props.handleAuthorization({ password, email });
     }
     return (
-        <>
-        <Header headerText="Регистрация" link="/sign-up" />
         <div className="popup__auth">
             <form className="popup-form popup-form_auth" onSubmit={handleSubmit}>
                 <h2 className="popup__profile popup__profile_auth">Вход</h2>
@@ -31,6 +29,5 @@ export default function Login(props) {
                 <button className="popup__button popup__button_auth">Войти</button>
             </form>
         </div>
-        </>
     )
 }

@@ -44,28 +44,27 @@ function App() {
           })
         }, []);
 
-    const handleCheckToken = React.useCallback(() => {
+    function handleCheckToken() {
       const token = localStorage.getItem('jwt')
-
-        auth
+        if (token) {
+          auth
         .checkToken(token)
-        .then((data) => {
+        .then((res) => {
+          if (res.data.email) {
+            setEmail(res.data.email)
             setLoggedIn(true)
-            setEmail(data.data.email)
             history.push('/')
+          }
         })
         .catch((err) => {
           console.log(err)
-        })
-    }, [history]);
+        });
+      }
+    };
 
     React.useEffect(() => {
-      const token = localStorage.getItem('jwt');
-  
-      if (token) {
-        handleCheckToken();
-      }
-    }, [handleCheckToken])
+      handleCheckToken();
+    }, []);
 
 
     const handleEditProfileClick = () => {
@@ -161,11 +160,12 @@ function App() {
   }
 
   //авторизация
-  function handleAuthorization(email, password) {
-    auth.authorize(email, password)
+  function handleAuthorization({email, password}) {
+    auth.authorize({email, password})
     .then((res) => {
       if (res.token) {
-        setLoggedIn(true)
+        setEmail(email)
+        setLoggedIn(true);
         setIsSuccesSignUp(true)
         localStorage.getItem('jwt', res.token)
         history.push('/')
@@ -195,12 +195,12 @@ function App() {
         name: ''
       })
   };
-  
+
   
   return (
     <CurrentUserContext.Provider value={currentUser}>
         <div className="page">
-        <Header email={email} loggedIn={loggedIn} onSignOut={handleSignOut} />
+        <Header email={email} loggedIn={loggedIn} onSignOut={handleSignOut} /> 
         <Switch>
           <ProtectedRoute
                 exact path="/" 
@@ -220,7 +220,7 @@ function App() {
           </Route>
           <Route path="/sign-in">
             <Login handleAuthorization={handleAuthorization}
-                  onCheckToken={handleCheckToken} />
+                    onCheckToken={handleCheckToken} />
           </Route>
           <Route path="/">
             {loggedIn ? <Redirect to="/" /> : <Redirect to="/sign-in" />}
@@ -245,5 +245,6 @@ function App() {
     </CurrentUserContext.Provider>
   );
 }
+
 
 export default App;
