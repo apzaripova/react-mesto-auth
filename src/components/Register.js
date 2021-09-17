@@ -1,5 +1,4 @@
 import React from 'react';
-import Header from "./Header";
 import {Link, Route} from "react-router-dom";
 
 export default function Register(props) {

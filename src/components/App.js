@@ -44,28 +44,29 @@ function App() {
           })
         }, []);
 
-    function handleCheckToken() {
-      const token = localStorage.getItem('jwt')
+    function handleCheckToken () {
+        const token = localStorage.getItem('jwt');
         if (token) {
-          auth
-        .checkToken(token)
-        .then((res) => {
-          if (res.data.email) {
-            setEmail(res.data.email)
-            setLoggedIn(true)
-            history.push('/')
-          }
-        })
-        .catch((err) => {
-          console.log(err)
-        });
+          auth.checkToken(token)
+          .then((res) => {
+            if(res.data.email) {
+              setEmail(res.data.email)
+              setLoggedIn(true)
+              history.push('/')
+            }
+          })
+          .catch((err) => {
+            console.log(err)
+          });
+        }
       }
-    };
 
+  
     React.useEffect(() => {
       handleCheckToken();
     }, []);
 
+   
 
     const handleEditProfileClick = () => {
         setIsEditProfilePopupOpen(true);
@@ -159,6 +160,7 @@ function App() {
     });
   }
 
+
   //авторизация
   function handleAuthorization({email, password}) {
     auth.authorize({email, password})
@@ -167,7 +169,7 @@ function App() {
         setEmail(email)
         setLoggedIn(true);
         setIsSuccesSignUp(true)
-        localStorage.getItem('jwt', res.token)
+        localStorage.setItem('jwt', res.token)
         history.push('/')
       }
     })
@@ -175,6 +177,7 @@ function App() {
       console.log(err)
     })
   }
+
 
   //выход из учетной записи
   function handleSignOut() {
@@ -195,6 +198,7 @@ function App() {
         name: ''
       })
   };
+
 
   
   return (
@@ -220,7 +224,7 @@ function App() {
           </Route>
           <Route path="/sign-in">
             <Login handleAuthorization={handleAuthorization}
-                    onCheckToken={handleCheckToken} />
+                  onCheckToken={handleCheckToken} />
           </Route>
           <Route path="/">
             {loggedIn ? <Redirect to="/" /> : <Redirect to="/sign-in" />}

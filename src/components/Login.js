@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import Header from './Header';
 
-export default function Login(props) {
+export default function Login({handleAuthorization}) {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -16,7 +15,7 @@ export default function Login(props) {
 
     function handleSubmit(e) {
         e.preventDefault();
-        props.handleAuthorization({ password, email });
+        handleAuthorization({ password, email });
     }
     return (
         <div className="popup__auth">
